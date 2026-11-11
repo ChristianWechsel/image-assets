@@ -1,6 +1,6 @@
 {
   "name": "@christian-wechsel/image-assets",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "TypeScript service for resizing, storing, caching, and retrieving image assets.",
   "main": "dist/index.js",
   "scripts": {

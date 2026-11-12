@@ -1,7 +1,7 @@
 import { Cache } from "../cache/cache.js";
 import { ImageResizer } from "../image-resizer/image-resizer.js";
 import { ImageStorage } from "../image-storage/image-storage.js";
-import type { ImageParams, StoredImage } from "../types/images.js";
+import type { ImageId, StoredImage } from "../types/images.js";
 import { ImageAssetService } from "./image-asset-service.js";
 import { ImageAssetServiceTestDataFactory } from "./image-asset-service.testdata.js";
 
@@ -22,7 +22,7 @@ class FakeImageStorage extends ImageStorage {
     throw new Error("existsImpl should not be called directly in this test.");
   }
 
-  protected listStorageContent(): Promise<ImageParams[]> {
+  protected listStorageContent(): Promise<ImageId[]> {
     throw new Error(
       "listStorageContent should not be called directly in this test.",
     );
@@ -147,12 +147,9 @@ describe("ImageAssetService", () => {
         .spyOn(imageStorage, "downloadImage")
         .mockResolvedValue(storedImage);
       const service = new ImageAssetService(imageResizer, imageStorage, []);
-      const params: ImageParams = {
+      const params: ImageId = {
         type: "DESKTOP",
         scale: "MAIN",
-        format: "png",
-        height: 320,
-        width: 688,
         filename: "banner.png",
       };
 

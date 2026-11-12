@@ -3,26 +3,22 @@ import type {
   ImageSizeProperties,
 } from "../image-resizer/image-resizer.js";
 import type { ImageStorage } from "../image-storage/image-storage.js";
-import type {
-  DeviceImageType,
-  ImageParams,
-  StoredImage,
-} from "../types/images.js";
+import type { ImageDefinition, ImageId, StoredImage } from "../types/images.js";
 
 export class ImageAssetService {
   constructor(
     private imageResizer: ImageResizer,
     private imageStorage: ImageStorage,
-    private readonly imageTypes: DeviceImageType[],
+    private readonly imageDefinitions: ImageDefinition[],
   ) {}
 
   upload(image: Buffer, originalName: string): Promise<void> {
     return Promise.all(
-      this.imageTypes
-        .map((imageType) => {
+      this.imageDefinitions
+        .map((imageDefinition) => {
           return {
             imageParam: {
-              ...imageType,
+              ...imageDefinition,
               filename: originalName,
             },
           };
@@ -54,12 +50,12 @@ export class ImageAssetService {
       .then(() => {});
   }
 
-  download(params: ImageParams): Promise<StoredImage> {
+  download(params: ImageId): Promise<StoredImage> {
     return this.imageStorage.downloadImage(params);
   }
 
   private factoryResizeImage(
-    params: ImageParams,
+    params: ImageDefinition,
   ): (image: Buffer) => Promise<Buffer> {
     let func: (image: Buffer) => Promise<Buffer> = (image: Buffer) =>
       Promise.resolve(image);

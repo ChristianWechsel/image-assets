@@ -2,7 +2,7 @@ import { existsSync, lstatSync, mkdirSync, readdirSync } from "fs";
 import { readFile, writeFile } from "fs/promises";
 import { join } from "path";
 import { Cache } from "../cache/cache.js";
-import type { ImageParams } from "../types/images.js";
+import type { ImageId } from "../types/images.js";
 import { ImageStorageDisk } from "./image-storage-disk.js";
 import {
   createFakeStats,
@@ -18,12 +18,9 @@ const mockReaddirSync = jest.mocked<(path: string) => string[]>(readdirSync);
 
 describe("ImageStorageDisk", () => {
   const folder = "/images";
-  const params: ImageParams = {
+  const params: ImageId = {
     type: "DESKTOP",
     scale: "MAIN",
-    format: "png",
-    height: 320,
-    width: 688,
     filename: "banner.png",
   };
   let cache: Cache<string, Buffer<ArrayBufferLike>>;

@@ -88,9 +88,6 @@ describe("ImageAssetService integration", () => {
     const downloaded = await service.download({
       type: "DESKTOP",
       scale: "MAIN",
-      format: "png",
-      height: 320,
-      width: 688,
       filename: "banner.png",
     });
 

@@ -1,16 +1,14 @@
 import type { Stats } from "fs";
 import { join } from "path";
-import type { ImageParams } from "../types/images.js";
+import type { ImageId } from "../types/images.js";
 
 export type DirectoryEntry = { name: string; isDirectory: boolean };
-
-export type ParsedListingEntry = Pick<ImageParams, "type" | "scale" | "filename">;
 
 export type ImageStorageDiskDirectoryFixture = {
   rootFolder: string;
   listingByPath: Map<string, DirectoryEntry[]>;
   isDirectoryByPath: Map<string, boolean>;
-  expectedParsedEntries: ParsedListingEntry[];
+  expectedParsedEntries: ImageId[];
 };
 
 export function createFakeStats(isDirectory: boolean): Stats {
@@ -49,7 +47,9 @@ export function createFakeStats(isDirectory: boolean): Stats {
 }
 
 export class ImageStorageDiskTestDataFactory {
-  deviceImageDirectoryTree(rootFolder: string): ImageStorageDiskDirectoryFixture {
+  deviceImageDirectoryTree(
+    rootFolder: string,
+  ): ImageStorageDiskDirectoryFixture {
     const desktopDir = join(rootFolder, "DESKTOP");
     const desktopMainDir = join(desktopDir, "MAIN");
     const desktopPreviewDir = join(desktopDir, "PREVIEW");
@@ -90,12 +90,17 @@ export class ImageStorageDiskTestDataFactory {
       [join(mobileOriginalDir, "photo.jpeg"), false],
     ]);
 
-    const expectedParsedEntries: ParsedListingEntry[] = [
+    const expectedParsedEntries: ImageId[] = [
       { type: "DESKTOP", scale: "MAIN", filename: "banner.png" },
       { type: "DESKTOP", scale: "PREVIEW", filename: "banner.png" },
       { type: "MOBILE", scale: "ORIGINAL", filename: "photo.jpeg" },
     ];
 
-    return { rootFolder, listingByPath, isDirectoryByPath, expectedParsedEntries };
+    return {
+      rootFolder,
+      listingByPath,
+      isDirectoryByPath,
+      expectedParsedEntries,
+    };
   }
 }

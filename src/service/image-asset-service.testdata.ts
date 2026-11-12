@@ -1,9 +1,9 @@
 import type { ImageSizeProperties } from "../image-resizer/image-resizer.js";
-import type { DeviceImageType } from "../types/images.js";
+import type { ImageDefinition } from "../types/images.js";
 
 export type UploadScenario = {
   name: string;
-  imageType: DeviceImageType;
+  imageType: ImageDefinition;
   expectedResizeOptions: ImageSizeProperties | null;
 };
 

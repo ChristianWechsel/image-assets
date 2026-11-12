@@ -1,19 +1,16 @@
 import type { Cache } from "../cache/cache.js";
-import { type ImageParams, type StoredImage } from "../types/images.js";
+import { type ImageId, type StoredImage } from "../types/images.js";
 
 export abstract class ImageStorage {
   constructor(private cache: Cache<string, Buffer<ArrayBufferLike>>) {}
 
-  uploadImage(
-    image: Buffer<ArrayBufferLike>,
-    params: ImageParams,
-  ): Promise<void> {
+  uploadImage(image: Buffer<ArrayBufferLike>, params: ImageId): Promise<void> {
     return this.uploadImageImpl(image, params).then(() => {
       this.cache.set(this.getPath(params), image);
     });
   }
 
-  downloadImage(params: ImageParams): Promise<StoredImage> {
+  downloadImage(params: ImageId): Promise<StoredImage> {
     const path = this.getPath(params);
     const cached = this.cache.get(path);
     if (cached) {
@@ -33,7 +30,7 @@ export abstract class ImageStorage {
     });
   }
 
-  exists(params: ImageParams): Promise<boolean> {
+  exists(params: ImageId): Promise<boolean> {
     if (this.cache.has(this.getPath(params))) {
       return Promise.resolve(true);
     }
@@ -42,18 +39,16 @@ export abstract class ImageStorage {
 
   protected abstract uploadImageImpl(
     image: Buffer<ArrayBufferLike>,
-    params: ImageParams,
+    params: ImageId,
   ): Promise<void>;
 
-  protected abstract downloadImageImpl(
-    params: ImageParams,
-  ): Promise<StoredImage>;
+  protected abstract downloadImageImpl(params: ImageId): Promise<StoredImage>;
 
-  protected abstract existsImpl(params: ImageParams): Promise<boolean>;
+  protected abstract existsImpl(params: ImageId): Promise<boolean>;
 
-  protected abstract listStorageContent(): Promise<ImageParams[]>;
+  protected abstract listStorageContent(): Promise<ImageId[]>;
 
-  protected getPath(params: ImageParams): string {
+  protected getPath(params: ImageId): string {
     return `/${params.type}/${params.scale}/${params.filename}`;
   }
 }

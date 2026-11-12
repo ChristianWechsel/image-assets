@@ -3,10 +3,10 @@ import { readFile, writeFile } from "fs/promises";
 import { join } from "path";
 import type { Cache } from "../cache/cache.js";
 import {
-  isImageParams,
+  isImageId,
   isImageScale,
   isImageType,
-  type ImageParams,
+  type ImageId,
   type StoredImage,
 } from "../types/images.js";
 import { ImageStorage } from "./image-storage.js";
@@ -22,7 +22,7 @@ export class ImageStorageDisk extends ImageStorage {
 
   protected uploadImageImpl(
     image: Buffer<ArrayBufferLike>,
-    params: ImageParams,
+    params: ImageId,
   ): Promise<void> {
     const pathFolder = this.getFolderPath(params);
     this.createFolderIfNotExists(pathFolder);
@@ -30,7 +30,7 @@ export class ImageStorageDisk extends ImageStorage {
     return writeFile(pathImage, image);
   }
 
-  protected downloadImageImpl(params: ImageParams): Promise<StoredImage> {
+  protected downloadImageImpl(params: ImageId): Promise<StoredImage> {
     const pathFolder = this.getFolderPath(params);
     const pathImage = this.getImagePath(pathFolder, params.filename);
     return readFile(pathImage).then((image) => ({
@@ -39,17 +39,17 @@ export class ImageStorageDisk extends ImageStorage {
     }));
   }
 
-  protected listStorageContent(): Promise<ImageParams[]> {
+  protected listStorageContent(): Promise<ImageId[]> {
     return Promise.resolve(this.readDir(this.folder));
   }
 
-  protected existsImpl(params: ImageParams): Promise<boolean> {
+  protected existsImpl(params: ImageId): Promise<boolean> {
     const pathFolder = this.getFolderPath(params);
     const pathImage = this.getImagePath(pathFolder, params.filename);
     return Promise.resolve(existsSync(pathImage));
   }
 
-  private getFolderPath(params: ImageParams): string {
+  private getFolderPath(params: Omit<ImageId, "filename">): string {
     return join(this.folder, params.type, params.scale);
   }
 
@@ -63,11 +63,8 @@ export class ImageStorageDisk extends ImageStorage {
     return join(folder, filename);
   }
 
-  private readDir(
-    path: string,
-    parent: Partial<ImageParams> = {},
-  ): ImageParams[] {
-    const items: ImageParams[] = [];
+  private readDir(path: string, parent: Partial<ImageId> = {}): ImageId[] {
+    const items: ImageId[] = [];
     const folderContent = readdirSync(path);
 
     for (const item of folderContent) {
@@ -88,7 +85,7 @@ export class ImageStorageDisk extends ImageStorage {
       }
       if (isFile) {
         parent.filename = item;
-        if (isImageParams(parent)) {
+        if (isImageId(parent)) {
           items.push({ ...parent });
         }
       }

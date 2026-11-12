@@ -7,6 +7,8 @@ export type DeviceImageType = {
   type: ImageType;
   scale: ImageScale;
   format: "png" | "jpeg";
+  width: number;
+  height: number;
 };
 
 export type ImageStorageOptions = ParsedPath & DeviceImageType;

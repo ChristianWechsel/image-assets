@@ -7,11 +7,15 @@ import { ImageAssetServiceTestDataFactory } from "./image-asset-service.testdata
 
 class FakeImageStorage extends ImageStorage {
   protected uploadImageImpl(): Promise<void> {
-    throw new Error("uploadImageImpl should not be called directly in this test.");
+    throw new Error(
+      "uploadImageImpl should not be called directly in this test.",
+    );
   }
 
   protected downloadImageImpl(): Promise<StoredImage> {
-    throw new Error("downloadImageImpl should not be called directly in this test.");
+    throw new Error(
+      "downloadImageImpl should not be called directly in this test.",
+    );
   }
 
   protected existsImpl(): Promise<boolean> {
@@ -19,7 +23,9 @@ class FakeImageStorage extends ImageStorage {
   }
 
   protected listStorageContent(): Promise<ImageParams[]> {
-    throw new Error("listStorageContent should not be called directly in this test.");
+    throw new Error(
+      "listStorageContent should not be called directly in this test.",
+    );
   }
 }
 
@@ -52,7 +58,9 @@ describe("ImageAssetService", () => {
       const uploadImageSpy = jest
         .spyOn(imageStorage, "uploadImage")
         .mockResolvedValue(undefined);
-      const service = new ImageAssetService(imageResizer, imageStorage, [imageType]);
+      const service = new ImageAssetService(imageResizer, imageStorage, [
+        imageType,
+      ]);
       const originalImage = Buffer.from("original-bytes");
       const filename = "banner.png";
 
@@ -61,7 +69,10 @@ describe("ImageAssetService", () => {
       const expectedParams = { ...imageType, filename };
       if (expectedResizeOptions === null) {
         expect(resizeImageSpy).not.toHaveBeenCalled();
-        expect(uploadImageSpy).toHaveBeenCalledWith(originalImage, expectedParams);
+        expect(uploadImageSpy).toHaveBeenCalledWith(
+          originalImage,
+          expectedParams,
+        );
       } else {
         expect(resizeImageSpy).toHaveBeenCalledWith(
           new Uint8Array(originalImage),
@@ -85,10 +96,24 @@ describe("ImageAssetService", () => {
         .mockResolvedValue(undefined);
       jest
         .spyOn(imageStorage, "exists")
-        .mockImplementation((params) => Promise.resolve(params.scale === "PREVIEW"));
+        .mockImplementation((params) =>
+          Promise.resolve(params.scale === "PREVIEW"),
+        );
       const service = new ImageAssetService(imageResizer, imageStorage, [
-        { type: "DESKTOP", scale: "MAIN", format: "png" },
-        { type: "DESKTOP", scale: "PREVIEW", format: "png" },
+        {
+          type: "DESKTOP",
+          scale: "MAIN",
+          format: "png",
+          height: 320,
+          width: 688,
+        },
+        {
+          type: "DESKTOP",
+          scale: "PREVIEW",
+          format: "png",
+          height: 320,
+          width: 688,
+        },
       ]);
       const originalImage = Buffer.from("original-bytes");
 
@@ -96,12 +121,17 @@ describe("ImageAssetService", () => {
 
       expect(resizeImageSpy).toHaveBeenCalledTimes(1);
       expect(uploadImageSpy).toHaveBeenCalledTimes(1);
-      expect(uploadImageSpy).toHaveBeenCalledWith(Buffer.from("resized-bytes"), {
-        type: "DESKTOP",
-        scale: "MAIN",
-        format: "png",
-        filename: "banner.png",
-      });
+      expect(uploadImageSpy).toHaveBeenCalledWith(
+        Buffer.from("resized-bytes"),
+        {
+          type: "DESKTOP",
+          scale: "MAIN",
+          format: "png",
+          height: 320,
+          width: 688,
+          filename: "banner.png",
+        },
+      );
     });
   });
 
@@ -121,6 +151,8 @@ describe("ImageAssetService", () => {
         type: "DESKTOP",
         scale: "MAIN",
         format: "png",
+        height: 320,
+        width: 688,
         filename: "banner.png",
       };
 

@@ -22,6 +22,8 @@ describe("ImageStorageDisk", () => {
     type: "DESKTOP",
     scale: "MAIN",
     format: "png",
+    height: 320,
+    width: 688,
     filename: "banner.png",
   };
   let cache: Cache<string, Buffer<ArrayBufferLike>>;
@@ -40,7 +42,9 @@ describe("ImageStorageDisk", () => {
     it("creates the root storage folder recursively", () => {
       new ImageStorageDisk(cache, folder);
 
-      expect(jest.mocked(mkdirSync)).toHaveBeenCalledWith(folder, { recursive: true });
+      expect(jest.mocked(mkdirSync)).toHaveBeenCalledWith(folder, {
+        recursive: true,
+      });
     });
   });
 
@@ -159,9 +163,8 @@ describe("ImageStorageDisk", () => {
 
   describe("initCache", () => {
     it("parses the on-disk folder structure and downloads every discovered image into the cache", async () => {
-      const fixture = new ImageStorageDiskTestDataFactory().deviceImageDirectoryTree(
-        folder,
-      );
+      const fixture =
+        new ImageStorageDiskTestDataFactory().deviceImageDirectoryTree(folder);
       jest.mocked(cache.get).mockReturnValue(undefined);
       jest.mocked(readFile).mockResolvedValue(Buffer.from("disk-bytes"));
       mockReaddirSync.mockImplementation((path) => {
@@ -174,7 +177,9 @@ describe("ImageStorageDisk", () => {
       jest.mocked(lstatSync).mockImplementation((path) => {
         const isDirectory = fixture.isDirectoryByPath.get(path.toString());
         if (isDirectory === undefined) {
-          throw new Error(`Unexpected lstatSync call for path: ${path.toString()}`);
+          throw new Error(
+            `Unexpected lstatSync call for path: ${path.toString()}`,
+          );
         }
         return createFakeStats(isDirectory);
       });

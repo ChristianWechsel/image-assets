@@ -69,8 +69,8 @@ export class ImageAssetService {
         case "MAIN":
           func = (image: Buffer) => {
             return this.resizeImage(image, {
-              width: 688,
-              height: 384,
+              width: params.width,
+              height: params.height,
               format: params.format,
             });
           };
@@ -78,8 +78,8 @@ export class ImageAssetService {
         case "PREVIEW":
           func = (image: Buffer) => {
             return this.resizeImage(image, {
-              width: 320,
-              height: 180,
+              width: params.width,
+              height: params.height,
               format: params.format,
             });
           };

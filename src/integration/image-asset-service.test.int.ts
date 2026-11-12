@@ -10,9 +10,8 @@ jest.mock("fs");
 jest.mock("fs/promises");
 
 // writeFile/readFile's last overload collapses to string|NonSharedBuffer; narrow to the single signature actually used.
-const mockWriteFile = jest.mocked<(path: string, data: Buffer) => Promise<void>>(
-  writeFile,
-);
+const mockWriteFile =
+  jest.mocked<(path: string, data: Buffer) => Promise<void>>(writeFile);
 const mockReadFile = jest.mocked<(path: string) => Promise<Buffer>>(readFile);
 
 function textToArrayBuffer(text: string): ArrayBuffer {
@@ -27,7 +26,9 @@ describe("ImageAssetService integration", () => {
   beforeEach(() => {
     originalFetch = global.fetch;
     writtenFiles.clear();
-    jest.mocked(existsSync).mockImplementation((path) => writtenFiles.has(path.toString()));
+    jest
+      .mocked(existsSync)
+      .mockImplementation((path) => writtenFiles.has(path.toString()));
     jest.mocked(mkdirSync).mockReturnValue(undefined);
     jest.mocked(lstatSync).mockImplementation(() => {
       throw new Error("initCache is not exercised in this integration test.");
@@ -52,7 +53,8 @@ describe("ImageAssetService integration", () => {
   it("resizes missing device image types through the resize API and stores them on disk", async () => {
     const fetchMock = jest.fn();
     fetchMock.mockResolvedValue({
-      arrayBuffer: () => Promise.resolve(textToArrayBuffer("resized-main-image")),
+      arrayBuffer: () =>
+        Promise.resolve(textToArrayBuffer("resized-main-image")),
     });
     global.fetch = fetchMock;
 
@@ -65,7 +67,13 @@ describe("ImageAssetService integration", () => {
       folder,
     );
     const service = new ImageAssetService(resizer, storage, [
-      { type: "DESKTOP", scale: "MAIN", format: "png" },
+      {
+        type: "DESKTOP",
+        scale: "MAIN",
+        format: "png",
+        height: 320,
+        width: 688,
+      },
     ]);
     const originalImage = Buffer.from("original-bytes");
 
@@ -73,12 +81,16 @@ describe("ImageAssetService integration", () => {
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
     const expectedPath = join(folder, "DESKTOP", "MAIN", "banner.png");
-    expect(writtenFiles.get(expectedPath)).toEqual(Buffer.from("resized-main-image"));
+    expect(writtenFiles.get(expectedPath)).toEqual(
+      Buffer.from("resized-main-image"),
+    );
 
     const downloaded = await service.download({
       type: "DESKTOP",
       scale: "MAIN",
       format: "png",
+      height: 320,
+      width: 688,
       filename: "banner.png",
     });
 
@@ -103,7 +115,13 @@ describe("ImageAssetService integration", () => {
       folder,
     );
     const service = new ImageAssetService(resizer, storage, [
-      { type: "DESKTOP", scale: "MAIN", format: "png" },
+      {
+        type: "DESKTOP",
+        scale: "MAIN",
+        format: "png",
+        height: 320,
+        width: 688,
+      },
     ]);
 
     await service.upload(Buffer.from("original-bytes"), "banner.png");

@@ -44,10 +44,10 @@ describe("ImageAssetService", () => {
     it.each([
       testData.desktop_main_resizes_to_688x384(),
       testData.desktop_preview_resizes_to_320x180(),
-      testData.desktop_original_is_not_resized(),
-      testData.mobile_main_is_not_resized(),
-      testData.mobile_preview_is_not_resized(),
-      testData.mobile_original_is_not_resized(),
+      testData.desktop_original_resizes_to_688x384(),
+      testData.mobile_main_resizes_to_688x384(),
+      testData.mobile_preview_resizes_to_320x180(),
+      testData.mobile_original_resizes_to_688x384(),
     ])("$name", async ({ imageType, expectedResizeOptions }) => {
       const imageResizer = createImageResizer();
       const imageStorage = createImageStorage();
@@ -67,22 +67,14 @@ describe("ImageAssetService", () => {
       await service.upload(originalImage, filename);
 
       const expectedParams = { ...imageType, filename };
-      if (expectedResizeOptions === null) {
-        expect(resizeImageSpy).not.toHaveBeenCalled();
-        expect(uploadImageSpy).toHaveBeenCalledWith(
-          originalImage,
-          expectedParams,
-        );
-      } else {
-        expect(resizeImageSpy).toHaveBeenCalledWith(
-          new Uint8Array(originalImage),
-          expectedResizeOptions,
-        );
-        expect(uploadImageSpy).toHaveBeenCalledWith(
-          Buffer.from("resized-bytes"),
-          expectedParams,
-        );
-      }
+      expect(resizeImageSpy).toHaveBeenCalledWith(
+        new Uint8Array(originalImage),
+        expectedResizeOptions,
+      );
+      expect(uploadImageSpy).toHaveBeenCalledWith(
+        Buffer.from("resized-bytes"),
+        expectedParams,
+      );
     });
 
     it("skips image types that already exist in storage", async () => {

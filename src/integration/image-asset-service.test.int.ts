@@ -50,7 +50,7 @@ describe("ImageAssetService integration", () => {
     global.fetch = originalFetch;
   });
 
-  it.only("resize desktop and mobile images", async () => {
+  it("resize desktop and mobile images", async () => {
     const fetchMock = jest.fn();
     fetchMock.mockResolvedValue({
       arrayBuffer: () =>

@@ -4,7 +4,7 @@ import type { ImageDefinition } from "../types/images.js";
 export type UploadScenario = {
   name: string;
   imageType: ImageDefinition;
-  expectedResizeOptions: ImageSizeProperties | null;
+  expectedResizeOptions: ImageSizeProperties;
 };
 
 export class ImageAssetServiceTestDataFactory {
@@ -36,9 +36,9 @@ export class ImageAssetServiceTestDataFactory {
     };
   }
 
-  desktop_original_is_not_resized(): UploadScenario {
+  desktop_original_resizes_to_688x384(): UploadScenario {
     return {
-      name: "desktop_original_is_not_resized",
+      name: "desktop_original_resizes_to_688x384",
       imageType: {
         type: "DESKTOP",
         scale: "ORIGINAL",
@@ -46,13 +46,13 @@ export class ImageAssetServiceTestDataFactory {
         width: 688,
         height: 384,
       },
-      expectedResizeOptions: null,
+      expectedResizeOptions: { width: 688, height: 384, format: "png" },
     };
   }
 
-  mobile_main_is_not_resized(): UploadScenario {
+  mobile_main_resizes_to_688x384(): UploadScenario {
     return {
-      name: "mobile_main_is_not_resized",
+      name: "mobile_main_resizes_to_688x384",
       imageType: {
         type: "MOBILE",
         scale: "MAIN",
@@ -60,13 +60,13 @@ export class ImageAssetServiceTestDataFactory {
         width: 688,
         height: 384,
       },
-      expectedResizeOptions: null,
+      expectedResizeOptions: { width: 688, height: 384, format: "png" },
     };
   }
 
-  mobile_preview_is_not_resized(): UploadScenario {
+  mobile_preview_resizes_to_320x180(): UploadScenario {
     return {
-      name: "mobile_preview_is_not_resized",
+      name: "mobile_preview_resizes_to_320x180",
       imageType: {
         type: "MOBILE",
         scale: "PREVIEW",
@@ -74,13 +74,13 @@ export class ImageAssetServiceTestDataFactory {
         width: 320,
         height: 180,
       },
-      expectedResizeOptions: null,
+      expectedResizeOptions: { width: 320, height: 180, format: "jpeg" },
     };
   }
 
-  mobile_original_is_not_resized(): UploadScenario {
+  mobile_original_resizes_to_688x384(): UploadScenario {
     return {
-      name: "mobile_original_is_not_resized",
+      name: "mobile_original_resizes_to_688x384",
       imageType: {
         type: "MOBILE",
         scale: "ORIGINAL",
@@ -88,7 +88,7 @@ export class ImageAssetServiceTestDataFactory {
         width: 688,
         height: 384,
       },
-      expectedResizeOptions: null,
+      expectedResizeOptions: { width: 688, height: 384, format: "png" },
     };
   }
 }

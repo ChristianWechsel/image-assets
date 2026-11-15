@@ -8,7 +8,7 @@ TypeScript service for resizing, storing, caching, and retrieving image assets.
 
 ## Features
 
-- **Variant-based uploads**: Define a set of `DeviceImageType`s (e.g. `DESKTOP`/`MAIN`, `DESKTOP`/`PREVIEW`) and let `ImageAssetService` generate and store all required variants from a single uploaded image.
+- **Variant-based uploads**: Define a set of `ImageDefinition`s (e.g. `DESKTOP`/`MAIN`, `DESKTOP`/`PREVIEW`), each with its own target `width`/`height`/`format`, and let `ImageAssetService` resize and store all required variants from a single uploaded image.
 - **Skip redundant work**: Before resizing, the service checks whether a variant already exists in storage and skips it if so.
 - **Pluggable storage**: `ImageStorage` is an abstract base class with built-in in-memory caching (reads and existence checks hit the cache first). Ships with a disk-based implementation (`ImageStorageDisk`); implement your own for GCS, S3, etc.
 - **Pluggable resizing**: `ImageResizer` delegates the actual resizing work to an HTTP service (see [Image Resizer prerequisite](#prerequisite-image-resizer-service) below).
@@ -45,7 +45,7 @@ import {
   ImageResizer,
   ImageStorageDisk,
   Cache,
-  type DeviceImageType,
+  type ImageDefinition,
 } from "@christian-wechsel/image-assets";
 
 // 1. Configure the resizer client (points at your deployed image-resizer service)
@@ -58,10 +58,10 @@ const imageResizer = new ImageResizer({
 const cache = new Cache<string, Buffer>();
 const imageStorage = new ImageStorageDisk(cache, "./uploads");
 
-// 3. Define the variants that should be generated for every uploaded image
-const imageTypes: DeviceImageType[] = [
-  { type: "DESKTOP", scale: "MAIN", format: "png" },
-  { type: "DESKTOP", scale: "PREVIEW", format: "png" },
+// 3. Define the variants that should be generated for every uploaded image, each resized to its own target size
+const imageTypes: ImageDefinition[] = [
+  { type: "DESKTOP", scale: "MAIN", format: "png", width: 688, height: 384 },
+  { type: "DESKTOP", scale: "PREVIEW", format: "png", width: 320, height: 180 },
 ];
 
 const imageAssetService = new ImageAssetService(
@@ -77,7 +77,6 @@ await imageAssetService.upload(imageBuffer, "photo.png");
 const { image, fileName } = await imageAssetService.download({
   type: "DESKTOP",
   scale: "MAIN",
-  format: "png",
   filename: "photo.png",
 });
 ```
@@ -93,17 +92,18 @@ const { image, fileName } = await imageAssetService.download({
 | `ImageStorage` | Abstract base class for storage backends, with built-in caching. Extend it to support custom backends. |
 | `ImageStorageDisk` | File-system-based `ImageStorage` implementation. |
 | `Cache` | Simple in-memory key/value cache used in front of storage reads. |
-| `DeviceImageType`, `ImageParams`, `StoredImage` | Types describing image variants and stored results. |
+| `ImageDefinition`, `ImageId`, `StoredImage` | Types describing image variants and stored results. |
 
 ### Image variants
 
-Each variant is described by:
+Each variant passed to `ImageAssetService` is described by an `ImageDefinition`:
 
 - `type`: `"DESKTOP"` \| `"MOBILE"`
 - `scale`: `"ORIGINAL"` \| `"MAIN"` \| `"PREVIEW"`
 - `format`: `"png"` \| `"jpeg"`
+- `width`, `height`: the target dimensions for this variant
 
-Currently, target dimensions are defined for `DESKTOP`/`MAIN` (688×384) and `DESKTOP`/`PREVIEW` (320×180). Other combinations are stored without resizing.
+Every variant is resized to its configured `width`/`height`/`format`, regardless of `type` or `scale`.
 
 ### Implementing a custom `ImageStorage`
 
@@ -111,10 +111,10 @@ Extend `ImageStorage` and implement the four protected hooks:
 
 ```typescript
 class MyStorage extends ImageStorage {
-  protected uploadImageImpl(image: Buffer, params: ImageParams): Promise<void> { ... }
-  protected downloadImageImpl(params: ImageParams): Promise<StoredImage> { ... }
-  protected existsImpl(params: ImageParams): Promise<boolean> { ... }
-  protected listStorageContent(): Promise<ImageParams[]> { ... }
+  protected uploadImageImpl(image: Buffer, params: ImageId): Promise<void> { ... }
+  protected downloadImageImpl(params: ImageId): Promise<StoredImage> { ... }
+  protected existsImpl(params: ImageId): Promise<boolean> { ... }
+  protected listStorageContent(): Promise<ImageId[]> { ... }
 }
 ```
 

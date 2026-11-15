@@ -50,6 +50,54 @@ describe("ImageAssetService integration", () => {
     global.fetch = originalFetch;
   });
 
+  it.only("resize desktop and mobile images", async () => {
+    const fetchMock = jest.fn();
+    fetchMock.mockResolvedValue({
+      arrayBuffer: () =>
+        Promise.resolve(textToArrayBuffer("resized-main-image")),
+    });
+    global.fetch = fetchMock;
+
+    const resizer = new ImageResizer({
+      url: "https://resize.invalid",
+      apiKey: "integration-test-key",
+    });
+    const storage = new ImageStorageDisk(
+      new Cache<string, Buffer<ArrayBufferLike>>(),
+      folder,
+    );
+    const service = new ImageAssetService(resizer, storage, [
+      {
+        type: "DESKTOP",
+        scale: "MAIN",
+        format: "png",
+        height: 320,
+        width: 688,
+      },
+      {
+        type: "MOBILE",
+        scale: "MAIN",
+        format: "jpeg",
+        height: 169,
+        width: 344,
+      },
+    ]);
+    const originalImage = Buffer.from("original-bytes");
+
+    await service.upload(originalImage, "banner.png");
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      1,
+      "https://resize.invalid/resize?width=688&height=320&format=png",
+      expect.objectContaining({ method: "POST" }),
+    );
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      2,
+      "https://resize.invalid/resize?width=344&height=169&format=jpeg",
+      expect.objectContaining({ method: "POST" }),
+    );
+  });
+
   it("resizes missing device image types through the resize API and stores them on disk", async () => {
     const fetchMock = jest.fn();
     fetchMock.mockResolvedValue({

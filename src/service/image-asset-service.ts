@@ -57,34 +57,12 @@ export class ImageAssetService {
   private factoryResizeImage(
     params: ImageDefinition,
   ): (image: Buffer) => Promise<Buffer> {
-    let func: (image: Buffer) => Promise<Buffer> = (image: Buffer) =>
-      Promise.resolve(image);
-
-    if (params.type === "DESKTOP") {
-      switch (params.scale) {
-        case "MAIN":
-          func = (image: Buffer) => {
-            return this.resizeImage(image, {
-              width: params.width,
-              height: params.height,
-              format: params.format,
-            });
-          };
-          break;
-        case "PREVIEW":
-          func = (image: Buffer) => {
-            return this.resizeImage(image, {
-              width: params.width,
-              height: params.height,
-              format: params.format,
-            });
-          };
-          break;
-      }
-    } else if (params.type === "MOBILE") {
-    }
-
-    return func;
+    return (image: Buffer) =>
+      this.resizeImage(image, {
+        width: params.width,
+        height: params.height,
+        format: params.format,
+      });
   }
 
   private resizeImage(

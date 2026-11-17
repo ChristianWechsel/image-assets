@@ -6,7 +6,7 @@ import {
   isImageId,
   isImageScale,
   isImageType,
-  type ImageId,
+  type ImageIdUpload,
   type StoredImage,
 } from "../types/images.js";
 import { ImageStorage } from "./image-storage.js";
@@ -22,34 +22,34 @@ export class ImageStorageDisk extends ImageStorage {
 
   protected uploadImageImpl(
     image: Buffer<ArrayBufferLike>,
-    params: ImageId,
+    params: ImageIdUpload,
   ): Promise<void> {
     const pathFolder = this.getFolderPath(params);
     this.createFolderIfNotExists(pathFolder);
-    const pathImage = this.getImagePath(pathFolder, params.filename);
+    const pathImage = this.getImagePath(pathFolder, params);
     return writeFile(pathImage, image);
   }
 
-  protected downloadImageImpl(params: ImageId): Promise<StoredImage> {
+  protected downloadImageImpl(params: ImageIdUpload): Promise<StoredImage> {
     const pathFolder = this.getFolderPath(params);
-    const pathImage = this.getImagePath(pathFolder, params.filename);
+    const pathImage = this.getImagePath(pathFolder, params);
     return readFile(pathImage).then((image) => ({
       image,
       fileName: params.filename,
     }));
   }
 
-  protected listStorageContent(): Promise<ImageId[]> {
+  protected listStorageContent(): Promise<ImageIdUpload[]> {
     return Promise.resolve(this.readDir(this.folder));
   }
 
-  protected existsImpl(params: ImageId): Promise<boolean> {
+  protected existsImpl(params: ImageIdUpload): Promise<boolean> {
     const pathFolder = this.getFolderPath(params);
-    const pathImage = this.getImagePath(pathFolder, params.filename);
+    const pathImage = this.getImagePath(pathFolder, params);
     return Promise.resolve(existsSync(pathImage));
   }
 
-  private getFolderPath(params: Omit<ImageId, "filename">): string {
+  private getFolderPath(params: Omit<ImageIdUpload, "filename">): string {
     return join(this.folder, params.type, params.scale);
   }
 
@@ -59,12 +59,19 @@ export class ImageStorageDisk extends ImageStorage {
     }
   }
 
-  private getImagePath(folder: string, filename: string): string {
-    return join(folder, filename);
+  private getImagePath(
+    folder: string,
+    params: Pick<ImageIdUpload, "filename" | "format">,
+  ): string {
+    const [file] = params.filename.split(".");
+    return join(folder, file + "." + params.format);
   }
 
-  private readDir(path: string, parent: Partial<ImageId> = {}): ImageId[] {
-    const items: ImageId[] = [];
+  private readDir(
+    path: string,
+    parent: Partial<ImageIdUpload> = {},
+  ): ImageIdUpload[] {
+    const items: ImageIdUpload[] = [];
     const folderContent = readdirSync(path);
 
     for (const item of folderContent) {

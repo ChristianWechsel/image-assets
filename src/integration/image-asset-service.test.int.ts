@@ -161,6 +161,7 @@ describe("ImageAssetService integration", () => {
       type: "DESKTOP",
       scale: "MAIN",
       filename: "banner.png",
+      format: "png",
     });
 
     expect(downloaded).toEqual({

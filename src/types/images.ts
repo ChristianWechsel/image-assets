@@ -10,9 +10,17 @@ export function isImageScale(value: any): value is ImageScale {
   return value === "ORIGINAL" || value === "MAIN" || value === "PREVIEW";
 }
 
-export type ImageId = { type: ImageType; scale: ImageScale; filename: string };
+type Format = { format: "png" | "jpeg" | "webp" | "avif" };
 
-export function isImageId(obj: any): obj is ImageId {
+export type ImageId = {
+  type: ImageType;
+  scale: ImageScale;
+  filename: string;
+};
+
+export type ImageIdUpload = ImageId & Format;
+
+export function isImageId(obj: any): obj is ImageIdUpload {
   return (
     obj &&
     typeof obj.filename === "string" &&
@@ -25,10 +33,9 @@ export function isImageId(obj: any): obj is ImageId {
 export type ImageProperties = {
   width: number;
   height: number;
-  format: "png" | "jpeg" | "webp" | "avif";
-};
+} & Format;
 
-export type ImageDefinition = Omit<ImageId, "filename"> & ImageProperties;
+export type ImageDefinition = Omit<ImageIdUpload, "filename"> & ImageProperties;
 
 export type StoredImage = {
   image: Buffer;

@@ -1,6 +1,6 @@
 import type { Stats } from "fs";
 import { join } from "path";
-import type { ImageId } from "../types/images.js";
+import type { ImageIdUpload } from "../types/images.js";
 
 export type DirectoryEntry = { name: string; isDirectory: boolean };
 
@@ -8,7 +8,7 @@ export type ImageStorageDiskDirectoryFixture = {
   rootFolder: string;
   listingByPath: Map<string, DirectoryEntry[]>;
   isDirectoryByPath: Map<string, boolean>;
-  expectedParsedEntries: ImageId[];
+  expectedParsedEntries: ImageIdUpload[];
 };
 
 export function createFakeStats(isDirectory: boolean): Stats {
@@ -90,10 +90,20 @@ export class ImageStorageDiskTestDataFactory {
       [join(mobileOriginalDir, "photo.jpeg"), false],
     ]);
 
-    const expectedParsedEntries: ImageId[] = [
-      { type: "DESKTOP", scale: "MAIN", filename: "banner.png" },
-      { type: "DESKTOP", scale: "PREVIEW", filename: "banner.png" },
-      { type: "MOBILE", scale: "ORIGINAL", filename: "photo.jpeg" },
+    const expectedParsedEntries: ImageIdUpload[] = [
+      { type: "DESKTOP", scale: "MAIN", filename: "banner.png", format: "png" },
+      {
+        type: "DESKTOP",
+        scale: "PREVIEW",
+        filename: "banner.png",
+        format: "png",
+      },
+      {
+        type: "MOBILE",
+        scale: "ORIGINAL",
+        filename: "photo.jpeg",
+        format: "png",
+      },
     ];
 
     return {

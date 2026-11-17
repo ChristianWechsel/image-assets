@@ -28,7 +28,7 @@ npm install @christian-wechsel/image-assets
 
 `ImageAssetService` does not resize images itself. It delegates this work over HTTP to an `ImageResizer`, which expects a running service that exposes a `POST /resize` endpoint:
 
-- Request: `POST {url}/resize?width={width}&height={height}&format={png|jpeg}`, with header `Authorization: Bearer {apiKey}` and the raw image bytes as the request body.
+- Request: `POST {url}/resize?width={width}&height={height}&format={png|jpeg|webp|avif}`, with header `Authorization: Bearer {apiKey}` and the raw image bytes as the request body.
 - Response: the resized image as binary data.
 
 You need to deploy such a service yourself, for example as a **Google Cloud Run** service. You can use [`image-resizer`](https://github.com/ChristianWechsel/image-resizer) for this — it implements exactly this contract using [`sharp`](https://www.npmjs.com/package/sharp).
@@ -100,7 +100,7 @@ Each variant passed to `ImageAssetService` is described by an `ImageDefinition`:
 
 - `type`: `"DESKTOP"` \| `"MOBILE"`
 - `scale`: `"ORIGINAL"` \| `"MAIN"` \| `"PREVIEW"`
-- `format`: `"png"` \| `"jpeg"`
+- `format`: `"png"` \| `"jpeg"` \| `"webp"` \| `"avif"`
 - `width`, `height`: the target dimensions for this variant
 
 Every variant is resized to its configured `width`/`height`/`format`, regardless of `type` or `scale`.

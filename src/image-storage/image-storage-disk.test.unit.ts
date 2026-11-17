@@ -2,7 +2,7 @@ import { existsSync, lstatSync, mkdirSync, readdirSync } from "fs";
 import { readFile, writeFile } from "fs/promises";
 import { join } from "path";
 import { Cache } from "../cache/cache.js";
-import type { ImageId } from "../types/images.js";
+import type { ImageIdUpload } from "../types/images.js";
 import { ImageStorageDisk } from "./image-storage-disk.js";
 import {
   createFakeStats,
@@ -18,10 +18,11 @@ const mockReaddirSync = jest.mocked<(path: string) => string[]>(readdirSync);
 
 describe("ImageStorageDisk", () => {
   const folder = "/images";
-  const params: ImageId = {
+  const params: ImageIdUpload = {
     type: "DESKTOP",
     scale: "MAIN",
     filename: "banner.png",
+    format: "png",
   };
   let cache: Cache<string, Buffer<ArrayBufferLike>>;
 
@@ -64,6 +65,31 @@ describe("ImageStorageDisk", () => {
         image,
       );
     });
+
+    it("renames file to resized image type", async () => {
+      jest.mocked(existsSync).mockReturnValue(true);
+      jest.mocked(writeFile).mockResolvedValue(undefined);
+      jest.mocked(mkdirSync).mockClear();
+
+      const storage = new ImageStorageDisk(cache, folder);
+      const image = Buffer.from("png-bytes");
+
+      await storage.uploadImage(image, {
+        type: "DESKTOP",
+        scale: "MAIN",
+        filename: "banner.png",
+        format: "avif",
+      });
+
+      expect(jest.mocked(writeFile)).toHaveBeenCalledWith(
+        join(join(folder, "DESKTOP", "MAIN"), "banner.avif"),
+        image,
+      );
+    });
+
+    it.todo(
+      "cache arbeitet mit getPath=> hat das Auswirkung auf rename des filenames?",
+    );
 
     it("does not recreate the type/scale folder if it already exists", async () => {
       jest.mocked(existsSync).mockReturnValue(true);

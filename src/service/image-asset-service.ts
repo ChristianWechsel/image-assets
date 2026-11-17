@@ -2,7 +2,7 @@ import type { ImageResizer } from "../image-resizer/image-resizer.js";
 import type { ImageStorage } from "../image-storage/image-storage.js";
 import type {
   ImageDefinition,
-  ImageId,
+  ImageIdUpload,
   ImageProperties,
   StoredImage,
 } from "../types/images.js";
@@ -52,7 +52,7 @@ export class ImageAssetService {
       .then(() => {});
   }
 
-  download(params: ImageId): Promise<StoredImage> {
+  download(params: ImageIdUpload): Promise<StoredImage> {
     return this.imageStorage.downloadImage(params);
   }
 

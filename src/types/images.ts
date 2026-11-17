@@ -22,11 +22,13 @@ export function isImageId(obj: any): obj is ImageId {
   );
 }
 
-export type ImageDefinition = Omit<ImageId, "filename"> & {
-  format: "png" | "jpeg";
+export type ImageProperties = {
   width: number;
   height: number;
+  format: "png" | "jpeg" | "webp" | "avif";
 };
+
+export type ImageDefinition = Omit<ImageId, "filename"> & ImageProperties;
 
 export type StoredImage = {
   image: Buffer;

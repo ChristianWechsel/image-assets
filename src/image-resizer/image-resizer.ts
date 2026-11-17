@@ -1,15 +1,11 @@
-export type ImageSizeProperties = {
-  width: number;
-  height: number;
-  format: "png" | "jpeg";
-};
+import type { ImageProperties } from "../types/images.js";
 
 export class ImageResizer {
   private readonly pathResize = "/resize";
 
   constructor(private options: { url: string; apiKey: string }) {}
 
-  resizeImage(image: BodyInit, options: ImageSizeProperties): Promise<Buffer> {
+  resizeImage(image: BodyInit, options: ImageProperties): Promise<Buffer> {
     return fetch(this.getUrlWithParams(this.pathResize, options), {
       method: "POST",
       headers: {
@@ -26,7 +22,7 @@ export class ImageResizer {
       });
   }
 
-  private getUrlWithParams(path: string, options: ImageSizeProperties) {
+  private getUrlWithParams(path: string, options: ImageProperties) {
     const url = new URL(path, this.options.url);
     url.searchParams.append("width", options.width.toString());
     url.searchParams.append("height", options.height.toString());

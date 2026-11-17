@@ -1,10 +1,9 @@
-import type { ImageSizeProperties } from "../image-resizer/image-resizer.js";
-import type { ImageDefinition } from "../types/images.js";
+import type { ImageDefinition, ImageProperties } from "../types/images.js";
 
 export type UploadScenario = {
   name: string;
   imageType: ImageDefinition;
-  expectedResizeOptions: ImageSizeProperties;
+  expectedResizeOptions: ImageProperties;
 };
 
 export class ImageAssetServiceTestDataFactory {

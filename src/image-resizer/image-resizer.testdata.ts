@@ -1,9 +1,9 @@
-import type { ImageSizeProperties } from "./image-resizer.js";
+import type { ImageProperties } from "../types/images.js";
 
 export type ImageResizerTestData = {
   name: string;
   resizerOptions: { url: string; apiKey: string };
-  sizeProperties: ImageSizeProperties;
+  sizeProperties: ImageProperties;
   expectedUrl: string;
   responseText: string;
 };

@@ -1,9 +1,11 @@
-import type {
-  ImageResizer,
-  ImageSizeProperties,
-} from "../image-resizer/image-resizer.js";
+import type { ImageResizer } from "../image-resizer/image-resizer.js";
 import type { ImageStorage } from "../image-storage/image-storage.js";
-import type { ImageDefinition, ImageId, StoredImage } from "../types/images.js";
+import type {
+  ImageDefinition,
+  ImageId,
+  ImageProperties,
+  StoredImage,
+} from "../types/images.js";
 
 export class ImageAssetService {
   constructor(
@@ -67,7 +69,7 @@ export class ImageAssetService {
 
   private resizeImage(
     image: Buffer,
-    options: ImageSizeProperties,
+    options: ImageProperties,
   ): Promise<Buffer> {
     return this.imageResizer.resizeImage(new Uint8Array(image), options);
   }

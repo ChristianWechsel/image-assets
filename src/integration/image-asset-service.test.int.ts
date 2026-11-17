@@ -50,7 +50,7 @@ describe("ImageAssetService integration", () => {
     global.fetch = originalFetch;
   });
 
-  it("resize desktop and mobile images", async () => {
+  it.only("resize desktop and mobile images", async () => {
     const fetchMock = jest.fn();
     fetchMock.mockResolvedValue({
       arrayBuffer: () =>
@@ -81,11 +81,25 @@ describe("ImageAssetService integration", () => {
         height: 169,
         width: 344,
       },
+      {
+        type: "DESKTOP",
+        scale: "PREVIEW",
+        format: "webp",
+        height: 320,
+        width: 688,
+      },
+      {
+        type: "MOBILE",
+        scale: "ORIGINAL",
+        format: "avif",
+        height: 169,
+        width: 344,
+      },
     ]);
     const originalImage = Buffer.from("original-bytes");
 
     await service.upload(originalImage, "banner.png");
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenCalledTimes(4);
     expect(fetchMock).toHaveBeenNthCalledWith(
       1,
       "https://resize.invalid/resize?width=688&height=320&format=png",
@@ -94,6 +108,16 @@ describe("ImageAssetService integration", () => {
     expect(fetchMock).toHaveBeenNthCalledWith(
       2,
       "https://resize.invalid/resize?width=344&height=169&format=jpeg",
+      expect.objectContaining({ method: "POST" }),
+    );
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      3,
+      "https://resize.invalid/resize?width=688&height=320&format=webp",
+      expect.objectContaining({ method: "POST" }),
+    );
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      4,
+      "https://resize.invalid/resize?width=344&height=169&format=avif",
       expect.objectContaining({ method: "POST" }),
     );
   });

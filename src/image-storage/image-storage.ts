@@ -1,3 +1,4 @@
+import { parse } from "path";
 import type { Cache } from "../cache/cache.js";
 import {
   type ImageId,
@@ -56,6 +57,7 @@ export abstract class ImageStorage {
   protected abstract listStorageContent(): Promise<ImageIdUpload[]>;
 
   protected getPath(params: ImageId): string {
-    return `/${params.type}/${params.scale}/${params.filename}`;
+    const parsed = parse(params.filename);
+    return `/${params.type}/${params.scale}/${parsed.name}`;
   }
 }

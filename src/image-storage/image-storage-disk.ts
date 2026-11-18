@@ -1,6 +1,6 @@
 import { existsSync, lstatSync, mkdirSync, readdirSync } from "fs";
 import { readFile, writeFile } from "fs/promises";
-import { join } from "path";
+import { join, parse } from "path";
 import type { Cache } from "../cache/cache.js";
 import {
   isImageId,
@@ -76,8 +76,8 @@ export class ImageStorageDisk extends ImageStorage {
   private replaceFileExtension(
     params: Pick<ImageIdUpload, "filename" | "format">,
   ): Pick<ImageId, "filename"> {
-    const [file] = params.filename.split(".");
-    return { filename: file + "." + params.format };
+    const parsed = parse(params.filename);
+    return { filename: parsed.name + "." + params.format };
   }
 
   private readDir(

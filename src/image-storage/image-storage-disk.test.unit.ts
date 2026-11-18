@@ -108,7 +108,7 @@ describe("ImageStorageDisk", () => {
       await storage.uploadImage(image, params);
 
       expect(jest.mocked(cache.set)).toHaveBeenCalledWith(
-        "/DESKTOP/MAIN/banner.png",
+        "/DESKTOP/MAIN/banner",
         image,
       );
     });
@@ -139,7 +139,7 @@ describe("ImageStorageDisk", () => {
       );
       expect(result).toEqual({ image: diskImage, fileName: "banner.png" });
       expect(jest.mocked(cache.set)).toHaveBeenCalledWith(
-        "/DESKTOP/MAIN/banner.png",
+        "/DESKTOP/MAIN/banner",
         diskImage,
       );
     });
@@ -186,6 +186,7 @@ describe("ImageStorageDisk", () => {
         new ImageStorageDiskTestDataFactory().deviceImageDirectoryTree(folder);
       const mockedCacheGet = jest.mocked(cache.get);
       const mockedReadFile = jest.mocked(readFile);
+      const mockedCacheSet = jest.mocked(cache.set);
 
       mockedCacheGet.mockReturnValue(undefined);
       mockedReadFile.mockResolvedValue(Buffer.from("disk-bytes"));
@@ -213,21 +214,21 @@ describe("ImageStorageDisk", () => {
         fixture.expectedParsedEntries.length,
       );
       for (let i = 0; i < fixture.expectedParsedEntries.length; i++) {
+        const entry = fixture.expectedParsedEntries[i];
         const expectedPath = join(
           folder,
-          fixture.expectedParsedEntries[i].type,
-          fixture.expectedParsedEntries[i].scale,
-          fixture.expectedParsedEntries[i].filename,
+          entry.type,
+          entry.scale,
+          entry.filename,
         );
+        const [fileNoType] = entry.filename.split(".");
         expect(mockedReadFile).toHaveBeenNthCalledWith(i + 1, expectedPath);
-      }
-      for (const entry of fixture.expectedParsedEntries) {
-        expect(jest.mocked(cache.set)).toHaveBeenCalledWith(
-          `/${entry.type}/${entry.scale}/${entry.filename}`,
+        expect(mockedCacheSet).toHaveBeenCalledWith(
+          `/${entry.type}/${entry.scale}/${fileNoType}`,
           Buffer.from("disk-bytes"),
         );
       }
-      expect(jest.mocked(cache.set)).toHaveBeenCalledTimes(
+      expect(mockedCacheSet).toHaveBeenCalledTimes(
         fixture.expectedParsedEntries.length,
       );
     });

@@ -6,6 +6,7 @@ import {
   isImageId,
   isImageScale,
   isImageType,
+  type ImageId,
   type ImageIdUpload,
   type StoredImage,
 } from "../types/images.js";
@@ -26,11 +27,14 @@ export class ImageStorageDisk extends ImageStorage {
   ): Promise<void> {
     const pathFolder = this.getFolderPath(params);
     this.createFolderIfNotExists(pathFolder);
-    const pathImage = this.getImagePath(pathFolder, params);
+    const pathImage = this.getImagePath(
+      pathFolder,
+      this.replaceFileExtension(params),
+    );
     return writeFile(pathImage, image);
   }
 
-  protected downloadImageImpl(params: ImageIdUpload): Promise<StoredImage> {
+  protected downloadImageImpl(params: ImageId): Promise<StoredImage> {
     const pathFolder = this.getFolderPath(params);
     const pathImage = this.getImagePath(pathFolder, params);
     return readFile(pathImage).then((image) => ({
@@ -45,11 +49,14 @@ export class ImageStorageDisk extends ImageStorage {
 
   protected existsImpl(params: ImageIdUpload): Promise<boolean> {
     const pathFolder = this.getFolderPath(params);
-    const pathImage = this.getImagePath(pathFolder, params);
+    const pathImage = this.getImagePath(
+      pathFolder,
+      this.replaceFileExtension(params),
+    );
     return Promise.resolve(existsSync(pathImage));
   }
 
-  private getFolderPath(params: Omit<ImageIdUpload, "filename">): string {
+  private getFolderPath(params: Omit<ImageId, "filename">): string {
     return join(this.folder, params.type, params.scale);
   }
 
@@ -61,10 +68,16 @@ export class ImageStorageDisk extends ImageStorage {
 
   private getImagePath(
     folder: string,
-    params: Pick<ImageIdUpload, "filename" | "format">,
+    params: Pick<ImageId, "filename">,
   ): string {
+    return join(folder, params.filename);
+  }
+
+  private replaceFileExtension(
+    params: Pick<ImageIdUpload, "filename" | "format">,
+  ): Pick<ImageId, "filename"> {
     const [file] = params.filename.split(".");
-    return join(folder, file + "." + params.format);
+    return { filename: file + "." + params.format };
   }
 
   private readDir(

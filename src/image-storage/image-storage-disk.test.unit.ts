@@ -87,10 +87,6 @@ describe("ImageStorageDisk", () => {
       );
     });
 
-    it.todo(
-      "cache arbeitet mit getPath=> hat das Auswirkung auf rename des filenames?",
-    );
-
     it("does not recreate the type/scale folder if it already exists", async () => {
       jest.mocked(existsSync).mockReturnValue(true);
       jest.mocked(writeFile).mockResolvedValue(undefined);
@@ -188,8 +184,11 @@ describe("ImageStorageDisk", () => {
     it("parses the on-disk folder structure and downloads every discovered image into the cache", async () => {
       const fixture =
         new ImageStorageDiskTestDataFactory().deviceImageDirectoryTree(folder);
-      jest.mocked(cache.get).mockReturnValue(undefined);
-      jest.mocked(readFile).mockResolvedValue(Buffer.from("disk-bytes"));
+      const mockedCacheGet = jest.mocked(cache.get);
+      const mockedReadFile = jest.mocked(readFile);
+
+      mockedCacheGet.mockReturnValue(undefined);
+      mockedReadFile.mockResolvedValue(Buffer.from("disk-bytes"));
       mockReaddirSync.mockImplementation((path) => {
         const entries = fixture.listingByPath.get(path);
         if (!entries) {
@@ -210,6 +209,18 @@ describe("ImageStorageDisk", () => {
 
       await storage.initCache();
 
+      expect(mockedReadFile).toHaveBeenCalledTimes(
+        fixture.expectedParsedEntries.length,
+      );
+      for (let i = 0; i < fixture.expectedParsedEntries.length; i++) {
+        const expectedPath = join(
+          folder,
+          fixture.expectedParsedEntries[i].type,
+          fixture.expectedParsedEntries[i].scale,
+          fixture.expectedParsedEntries[i].filename,
+        );
+        expect(mockedReadFile).toHaveBeenNthCalledWith(i + 1, expectedPath);
+      }
       for (const entry of fixture.expectedParsedEntries) {
         expect(jest.mocked(cache.set)).toHaveBeenCalledWith(
           `/${entry.type}/${entry.scale}/${entry.filename}`,
